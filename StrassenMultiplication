@@ -1,0 +1,136 @@
+/**Implementation of  Matrix Multiplication**/
+ 
+import java.util.Scanner;
+ 
+/**Matrix multiplication class **/
+public class StrassenMultiplication
+{
+    /** Matrices multiplication **/
+    public int[][] matrixMultiply(int[][] matrixA, int[][] matrixB)
+    {        
+        int k = matrixA.length;
+        int[][] R = new int[k][k];
+        if (k == 1)
+            R[0][0] = matrixA[0][0] * matrixB[0][0];
+        else
+        {
+            /** matrixA **/
+            int[][] a = new int[k/2][k/2];
+            int[][] b = new int[k/2][k/2];
+            int[][] c = new int[k/2][k/2];
+            int[][] d = new int[k/2][k/2];
+            /** matrixB **/ 
+            int[][] e = new int[k/2][k/2];
+            int[][] f = new int[k/2][k/2];
+            int[][] g = new int[k/2][k/2];
+            int[][] h = new int[k/2][k/2];
+ 
+            /**  Splitting matrixA into 4 halves **/
+            split(matrixA, a, 0 , 0);
+            split(matrixA, b, 0 , k/2);
+            split(matrixA, c, k/2, 0);
+            split(matrixA, d, k/2, k/2);
+            /** Splitting  matrixB into 4 halves **/
+            split(matrixB, e, 0 , 0);
+            split(matrixB, f, 0 , k/2);
+            split(matrixB, g, k/2, 0);
+            split(matrixB, h, k/2, k/2);
+ 
+           //Additions and subtractions
+ 
+            int [][] P1 = matrixMultiply(addMatrices(a, d), addMatrices(e, h));
+            int [][] P2 = matrixMultiply(addMatrices(c, d), e);
+            int [][] P3 = matrixMultiply(a, subtract(f, h));
+            int [][] P4 = matrixMultiply(d, subtract(g, e));
+            int [][] P5 = matrixMultiply(addMatrices(a, b), h);
+            int [][] P6 = matrixMultiply(subtract(c, a), addMatrices(e, f));
+            int [][] P7 = matrixMultiply(subtract(b, d), addMatrices(g, h));
+ 
+            int [][] R11 = addMatrices(subtract(addMatrices(P1, P4), P5), P7);
+            int [][] R12 = addMatrices(P3, P5);
+            int [][] R21 = addMatrices(P2, P4);
+            int [][] R22 = addMatrices(subtract(addMatrices(P1, P3), P2), P6);
+ 
+            /** Joining 4 halves **/
+            joik(R11, R, 0 , 0);
+            joik(R12, R, 0 , k/2);
+            joik(R21, R, k/2, 0);
+            joik(R22, R, k/2, k/2);
+        }
+        /** Resulting Matrix from joining 4 halves**/    
+        return R;
+    }
+    /** Subtraction of two matrices **/
+    public int[][] subtract(int[][] matrixA, int[][] matrixB)
+    {
+        int k = matrixA.length;
+        int[][] C = new int[k][k];
+        for (int x = 0; x < k; x++)
+            for (int y = 0; y < k; y++)
+                C[x][y] = matrixA[x][y] - matrixB[x][y];
+        return C;
+    }
+    /** matrixAddition of two matrices **/
+    public int[][] addMatrices(int[][] matrixA, int[][] matrixB)
+    {
+        int k = matrixA.length;
+        int[][] C = new int[k][k];
+        for (int x = 0; x < k; x++)
+            for (int y = 0; y < k; y++)
+                C[x][y] = matrixA[x][y] + matrixB[x][y];
+        return C;
+    }
+    /** Splitting parent matrix into child matrices **/
+    public void split(int[][] P, int[][] C, int xmatrixB, int ymatrixB) 
+    {
+        for(int x1 = 0, x2 = xmatrixB; x1 < C.length; x1++, x2++)
+            for(int y1 = 0, y2 = ymatrixB; y1 < C.length; y1++, y2++)
+                C[x1][y1] = P[x2][y2];
+    }
+    /**Joining child matrices into parent matrix **/
+    public void joik(int[][] C, int[][] P, int xmatrixB, int ymatrixB) 
+    {
+        for(int x1 = 0, x2 = xmatrixB; x1 < C.length; x1++, x2++)
+            for(int y1 = 0, y2 = ymatrixB; y1 < C.length; y1++, y2++)
+                P[x2][y2] = C[x1][y1];
+    }    
+    /** Main  **/
+    public static void main (String[] args) 
+    {
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Matrix Multiplication Program\n");
+        StrassenMultiplication s = new StrassenMultiplication();
+ 
+        System.out.println("Input order n :");
+        int N = scan.nextInt();
+        /** Accept input for 2 two dimensional matrices  **/
+        System.out.println("enter elements for Matrix matrixA\n");
+        int[][] matrixA = new int[N][N];
+        for (int x = 0; x < N; x++)
+            for (int y = 0; y < N; y++)
+                matrixA[x][y] = scan.nextInt();
+ 
+        System.out.println("enter elements for Matrix matrixB\n");
+        int[][] matrixB = new int[N][N];
+        for (int x = 0; x < N; x++)
+            for (int y = 0; y < N; y++)
+                matrixB[x][y] = scan.nextInt();
+           
+        //time tracking        
+        long start = System.nanoTime();
+        long finish = System.nanoTime();
+        long timeElapsed = finish - start;
+ 
+        int[][] C = s.matrixMultiply(matrixA, matrixB); 
+        System.out.print(timeElapsed);
+        System.out.println("\nProduct of matrixA and  matrixB : ");
+        for (int x = 0; x < N; x++)
+        {
+            for (int y = 0; y < N; y++)
+                System.out.print(C[x][y] +" ");
+            System.out.println();
+              
+        }
+ 
+    }
+}
